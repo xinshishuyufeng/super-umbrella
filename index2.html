@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Zoom and Slide on Touch</title>
+<style>
+  #image-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh; /* Full viewport height */
+    text-align: center;
+    margin-top: 20px;
+  }
+  img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.05); /* Center and set initial size to 5% */
+    transition: transform 0.25s ease, opacity 2s ease; /* Smooth transition for zoom and fade out */
+    cursor: pointer;
+  }
+</style>
+<script>
+  var zoomFactor = 1.1; // Each click will zoom in 10%
+  var clickCount = 0; // Counter for number of clicks
+  var initialScale = 0.05; // Initial scale of the image
+  var img = null;
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var imgStartX = 0;
+  var imgStartY = 0;
+
+  function zoomImage() {
+    clickCount++; // Increment click count
+    var newZoomFactor = Math.pow(zoomFactor, clickCount) * initialScale; // Calculate new zoom factor starting from 5%
+    img.style.transform = 'translate(-50%, -50%) scale(' + newZoomFactor + ')'; // Apply new zoom factor
+  }
+
+  function handleTouchStart(evt) {
+    touchStartX = evt.touches[0].clientX;
+    touchStartY = evt.touches[0].clientY;
+    imgStartX = img.offsetLeft;
+    imgStartY = img.offsetTop;
+  }
+
+  function handleTouchMove(evt) {
+    var touchEndX = evt.touches[0].clientX;
+    var touchEndY = evt.touches[0].clientY;
+    var dx = touchEndX - touchStartX;
+    var dy = touchEndY - touchStartY;
+    img.style.left = imgStartX + dx + 'px';
+    img.style.top = imgStartY + dy + 'px';
+    checkBoundary();
+  }
+
+  function checkBoundary() {
+    var rect = img.getBoundingClientRect();
+    if (rect.left < 0 || rect.right > window.innerWidth || rect.top < 0 || rect.bottom > window.innerHeight) {
+      img.style.opacity = '0';
+    } else {
+      img.style.opacity = '1';
+    }
+  }
+
+  window.onload = function() {
+    img = document.getElementById('myImage');
+    img.addEventListener('click', zoomImage);
+    img.addEventListener('touchstart', handleTouchStart);
+    img.addEventListener('touchmove', handleTouchMove);
+  }
+</script>
+</head>
+<body>
+
+<div id="image-container">
+  <img id="myImage" src="https://s21.ax1x.com/2024/10/12/pAYWkqS.png" alt="Image to Zoom">
+</div>
+
+</body>
+</html>
