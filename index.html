@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .fullscreen-image {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .center-image {
+    width: 10%;
+    height: auto;
+    position: fixed;
+    top: 50%;
+    left: 50%; 
+    transform: translate(-50%, -50%) scale(0.1);
+    z-index: 2;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<img src="https://s21.ax1x.com/2024/10/14/pAtDpSU.jpg" class="fullscreen-image" draggable="false">
+
+<img src="https://s21.ax1x.com/2024/10/14/pAtNXo8.md.png" class="center-image" id="centerImage" draggable="true">
+
+<script>
+  var centerImage = document.getElementById('centerImage');
+  var scale = 0.1; // 初始缩放比例为10%
+  var maxScale = 3.0; // 最大缩放比例为300%
+  var scaleStep = 0.15; // 每次点击放大的比例
+
+  // 图片放大函数
+  function zoomIn() {
+    if (scale < maxScale) {
+      scale += scaleStep;
+      centerImage.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
+    }
+  }
+
+      // 长按图片开始拖动
+  centerImage.addEventListener('touchstart', function(e) {
+    initialTouchTime = new Date().getTime();
+    // 判断是否为长按
+    setTimeout(function() {
+      if (new Date().getTime() - initialTouchTime >= 500) { // 长按超过500毫秒
+        initialX = e.touches[0].clientX - centerImage.getBoundingClientRect().left;
+        initialY = e.touches[0].clientY - centerImage.getBoundingClientRect().top;
+      }
+    }, 500);
+  });
+
+  // 移动图片
+  centerImage.addEventListener('touchmove', function(e) {
+    if (initialX !== null && initialY !== null) {
+      e.preventDefault();
+      var touch = e.touches[0];
+      var newX = touch.clientX - initialX;
+      var newY = touch.clientY - initialY;
+      centerImage.style.left = newX + 'px';
+      centerImage.style.top = newY + 'px';
+      centerImage.style.transform = 'scale(' + scale + ')'; // 移动时不改变缩放
+    }
+  });
+
+  // 结束拖动
+  centerImage.addEventListener('touchend', function(e) {
+    initialX = null;
+    initialY = null;
+    // 检查图片是否超出边界
+    var rect = centerImage.getBoundingClientRect();
+    if (rect.top <= 0 || rect.bottom >= window.innerHeight || rect.left <= 0 || rect.right >= window.innerWidth) {
+      centerImage.style.display = 'none'; // 超出边界时隐藏图片
+    }
+  });
+  // 点击屏幕放大图片
+  document.addEventListener('click', function(event) {
+    if (event.target === centerImage) {
+      zoomIn();
+    }
+  });
+</script>
+
+</body>
+</html>
